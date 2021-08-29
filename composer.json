@@ -1,0 +1,16 @@
+{
+    "name": "francerz/view-html",
+    "description": "PSR-7 simple template engine.",
+    "type": "library",
+    "license": "ISC",
+    "authors": [
+        {
+            "name": "Francerz",
+            "email": "francerzam@hotmail.com"
+        }
+    ],
+    "require": {
+        "psr/http-message": "^1.0",
+        "psr/http-factory": "^1.0"
+    }
+}
