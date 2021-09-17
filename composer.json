@@ -9,6 +9,11 @@
             "email": "francerzam@hotmail.com"
         }
     ],
+    "autoload": {
+        "psr-4": {
+            "Francerz\\ViewHtml\\": "src"
+        }
+    },
     "require": {
         "psr/http-message": "^1.0",
         "psr/http-factory": "^1.0"
