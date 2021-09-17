@@ -2,6 +2,7 @@
 
 namespace Francerz\ViewHtml;
 
+use Francerz\PowerData\Strings;
 use LogicException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamFactoryInterface;
@@ -13,6 +14,7 @@ class View
 
     public function __construct(string $view)
     {
+        $view = Strings::endsWith($view, '.php') ? $view : $view.'.php';
         $this->view = $view;
     }
 
