@@ -2,62 +2,55 @@
 
 namespace Francerz\ViewHtml;
 
-use Francerz\PowerData\Strings;
-use LogicException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\StreamFactoryInterface;
-
 class View
 {
-    private $view;
-    private $vars = [];
+    private $renderer;
+    private $section = null;
+    /**
+     * @var string[]
+     */
+    private $sections = [];
 
-    public function __construct(string $view)
+    public function __construct(Renderer $renderer)
     {
-        $view = Strings::endsWith($view, '.php') ? $view : $view.'.php';
-        $this->view = $view;
+        $this->renderer = $renderer;
     }
 
-    public function set($var, $value = null)
+    public function getRenderer()
     {
-        if (is_array($var)) {
-            $this->setArray($var);
-        }
-
-        if (!is_string($var)) {
-            throw new LogicException('Var name must be string');
-        }
-
-        $this->vars[$var] = $value;
-
-        return $this;
+        return $this->renderer;
     }
 
-    public function setArray(array $vars)
+    public function loadLayout(string $layout, array $data = [])
     {
-        foreach ($vars as $n => $v) {
-            if (is_numeric($n)) {
-                throw new LogicException('All vars must have non numeric names');
-            }
-            $this->set($n, $v);
-        }
-        return $this;
+        $layout = new Layout($this, $layout, $data);
     }
 
-    public function render()
+    public function findSection(string $name)
     {
-        ob_start();
-        extract($this->vars);
-        include $this->view;
-        return ob_get_clean();
+        return $this->sections[$name] ?? null;
     }
 
-    public function renderPsr7(ResponseInterface $response, StreamFactoryInterface $streamFactory)
+    public function section(string $name)
     {
-        $output = $streamFactory->createStream($this->render());
-        $response = $response
-            ->withHeader('Content-Type', 'text/html')
-            ->withBody($output);
-        return $response;
+        $self = $this;
+        ob_start(function(string $buffer) use ($self, $name) {
+            $self->sections[$name] = $buffer;
+            return $buffer;
+        });
+    }
+
+    public function endSection()
+    {
+        ob_get_clean();
+    }
+
+    public function include(string $view, array $data = [])
+    {
+        $viewPath = $this->renderer->getViewPath($view);
+        return (function(string $viewPath, array $data) {
+            extract($data);
+            include $viewPath;
+        })($viewPath, $data);
     }
 }
