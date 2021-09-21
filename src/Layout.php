@@ -37,4 +37,13 @@ class Layout
             return ob_get_clean();
         })($this->layoutPath, $this->data);
     }
+
+    public function insert(string $view, array $data = [])
+    {
+        $viewPath = $this->renderer->getViewPath($view);
+        return (function(string $viewPath, array $data) {
+            extract($data);
+            include $viewPath;
+        })($viewPath, $data);
+    }
 }
